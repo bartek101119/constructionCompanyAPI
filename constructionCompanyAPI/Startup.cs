@@ -1,3 +1,4 @@
+using constructionCompanyAPI.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,11 +28,15 @@ namespace constructionCompanyAPI
         {
 
             services.AddControllers();
+            services.AddDbContext<ConstructionCompanyDbContext>();
+            services.AddScoped<ConstructionCompanySeeder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ConstructionCompanySeeder seeder)
         {
+            seeder.Seed();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
