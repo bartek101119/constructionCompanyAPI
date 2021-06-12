@@ -22,6 +22,16 @@ namespace constructionCompanyAPI.Controllers
             this.mapper = mapper;
         }
 
+        [HttpPost]
+        public ActionResult CreateConstructionCompany([FromBody] CreateConstructionCompanyDto dto)
+        {
+            var constructionCompany = mapper.Map<ConstructionCompany>(dto);
+            dbContext.ConstructionCompanies.Add(constructionCompany);
+            dbContext.SaveChanges();
+
+            return Created($"api/constructionCompany/{constructionCompany.Id}", null);
+        }
+
         [HttpGet]
         public ActionResult<IEnumerable<ConstructionCompanyDto>> GetAll()
         {
