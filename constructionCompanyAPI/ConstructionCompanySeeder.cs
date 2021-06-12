@@ -41,6 +41,7 @@ namespace constructionCompanyAPI
                     KRS = "13123123131",
                     ContactEmail = "heszki@wp.pl",
                     ContactNumber = "13131311",
+                    StartDate = new DateTime(1998, 06, 16, 13, 45, 00),
                     Address = new Address()
                     {
                         Voivodeship = "Kujawsko-Pomorskie",
@@ -105,8 +106,8 @@ namespace constructionCompanyAPI
                             Specialization = "Pomocnik"
                         }
                     }
-                }
-                
+                },
+
             };
             return constructionCompanies;
         }

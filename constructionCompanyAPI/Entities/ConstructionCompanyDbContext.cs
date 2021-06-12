@@ -19,11 +19,13 @@ namespace constructionCompanyAPI.Entities
             modelBuilder.Entity<ConstructionCompany>()
                 .Property(c => c.Name)
                 .IsRequired()
-                .HasMaxLength(25);
+                .HasMaxLength(40);
 
             modelBuilder.Entity<CompanyOwner>()
                 .Property(c => c.FullName)
-                .IsRequired();
+                .IsRequired()
+                .HasMaxLength(40);
+
 
 
         }
