@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 namespace constructionCompanyAPI.Controllers
 {
     [Route("/api/constructionCompany")]
+    [ApiController]
     public class ConstructionCompanyController : ControllerBase
     {
         private readonly IConstructionCompanyService service;
@@ -24,11 +25,6 @@ namespace constructionCompanyAPI.Controllers
         [HttpPut("{id}")]
         public ActionResult Put([FromBody]UpdateConstructionCompanyDto dto, [FromRoute]int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             service.Put(dto, id);
 
             return Ok();
@@ -46,10 +42,6 @@ namespace constructionCompanyAPI.Controllers
         [HttpPost]
         public ActionResult CreateConstructionCompany([FromBody] CreateConstructionCompanyDto dto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             var id = service.Create(dto);
 
