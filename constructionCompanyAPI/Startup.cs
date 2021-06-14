@@ -35,6 +35,8 @@ namespace constructionCompanyAPI
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IConstructionCompanyService, ConstructionCompanyService>();
             services.AddScoped<ErrorHandlingMiddleware>();
+            services.AddSwaggerGen();
+            services.AddScoped<RequestTimeMiddleware>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,8 +49,15 @@ namespace constructionCompanyAPI
                 app.UseDeveloperExceptionPage();
             }
             app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseMiddleware<RequestTimeMiddleware>();
 
             app.UseHttpsRedirection();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => 
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ConstructionCompany API");
+            });
 
             app.UseRouting();
 
