@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using constructionCompanyAPI.Entities;
 using constructionCompanyAPI.Models;
+using constructionCompanyAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,36 +14,61 @@ namespace constructionCompanyAPI.Controllers
     [Route("/api/constructionCompany")]
     public class ConstructionCompanyController : ControllerBase
     {
-        private readonly ConstructionCompanyDbContext dbContext;
-        private readonly IMapper mapper;
+        private readonly IConstructionCompanyService service;
 
-        public ConstructionCompanyController(ConstructionCompanyDbContext dbContext, IMapper mapper)
+        public ConstructionCompanyController(IConstructionCompanyService service)
         {
-            this.dbContext = dbContext;
-            this.mapper = mapper;
+            this.service = service;
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult Put([FromBody]UpdateConstructionCompanyDto dto, [FromRoute]int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var isUpdated = service.Put(dto, id);
+
+            if (isUpdated)
+            {
+                return Ok();
+            }
+
+            return NotFound();
+        }
+        
+        [HttpDelete("{id}")]
+        public ActionResult Delete(int id)
+        {
+            var isDeleted = service.Delete(id);
+
+            if (isDeleted)
+            {
+                return NoContent();
+            }
+
+            return NotFound();
         }
 
         [HttpPost]
         public ActionResult CreateConstructionCompany([FromBody] CreateConstructionCompanyDto dto)
         {
-            var constructionCompany = mapper.Map<ConstructionCompany>(dto);
-            dbContext.ConstructionCompanies.Add(constructionCompany);
-            dbContext.SaveChanges();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            return Created($"api/constructionCompany/{constructionCompany.Id}", null);
+            var id = service.Create(dto);
+
+            return Created($"api/constructionCompany/{id}", null);
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<ConstructionCompanyDto>> GetAll()
         {
-            var constructionCompanies = dbContext
-                .ConstructionCompanies
-                .Include(c => c.Address)
-                .Include(c => c.CompanyOwner)
-                .Include(c => c.Employees)
-                .ToList();
-
-            var constructionCompaniesDtos = mapper.Map<List<ConstructionCompanyDto>>(constructionCompanies);
+            var constructionCompaniesDtos = service.GetAll();
 
             return Ok(constructionCompaniesDtos);
         }
@@ -50,19 +76,12 @@ namespace constructionCompanyAPI.Controllers
         [HttpGet("{id}")]
         public ActionResult<ConstructionCompanyDto> Get([FromRoute]int id)
         {
-            var constructionCompany = dbContext
-                .ConstructionCompanies
-                .Include(c => c.Address)
-                .Include(c => c.CompanyOwner)
-                .Include(c => c.Employees)
-                .FirstOrDefault(c => c.Id == id);
+            var constructionCompanyDto = service.GetById(id);
 
-            if(constructionCompany is null)
+            if(constructionCompanyDto is null)
             {
                 return NotFound();
             }
-
-            var constructionCompanyDto = mapper.Map<ConstructionCompanyDto>(constructionCompany);
 
             return Ok(constructionCompanyDto);
         }

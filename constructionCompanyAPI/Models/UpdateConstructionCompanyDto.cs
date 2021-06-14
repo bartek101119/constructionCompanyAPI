@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace constructionCompanyAPI.Models
 {
-    public class CreateConstructionCompanyDto
+    public class UpdateConstructionCompanyDto
     {
+        public int Id { get; set; }
         [Required]
         [MaxLength(40)]
         public string Name { get; set; }
@@ -16,15 +17,6 @@ namespace constructionCompanyAPI.Models
         public string REGON { get; set; }
         public string KRS { get; set; }
         public DateTime StartDate { get; set; }
-        [EmailAddress]
-        public string ContactEmail { get; set; }
-        public string ContactNumber { get; set; }
-        public string Voivodeship { get; set; }
-        public string City { get; set; }
-        public string Street { get; set; }
-        public string PostalCode { get; set; }
-        [Required]
-        [MaxLength(40)]
-        public string FullName { get; set; }
+
     }
 }
