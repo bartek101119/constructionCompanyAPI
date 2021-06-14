@@ -29,27 +29,18 @@ namespace constructionCompanyAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var isUpdated = service.Put(dto, id);
+            service.Put(dto, id);
 
-            if (isUpdated)
-            {
-                return Ok();
-            }
-
-            return NotFound();
+            return Ok();
         }
         
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var isDeleted = service.Delete(id);
+            service.Delete(id);
 
-            if (isDeleted)
-            {
-                return NoContent();
-            }
+            return NoContent();
 
-            return NotFound();
         }
 
         [HttpPost]
@@ -77,11 +68,6 @@ namespace constructionCompanyAPI.Controllers
         public ActionResult<ConstructionCompanyDto> Get([FromRoute]int id)
         {
             var constructionCompanyDto = service.GetById(id);
-
-            if(constructionCompanyDto is null)
-            {
-                return NotFound();
-            }
 
             return Ok(constructionCompanyDto);
         }

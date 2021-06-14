@@ -1,4 +1,5 @@
 using constructionCompanyAPI.Entities;
+using constructionCompanyAPI.Middleware;
 using constructionCompanyAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -33,6 +34,7 @@ namespace constructionCompanyAPI
             services.AddScoped<ConstructionCompanySeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
             services.AddScoped<IConstructionCompanyService, ConstructionCompanyService>();
+            services.AddScoped<ErrorHandlingMiddleware>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,6 +46,7 @@ namespace constructionCompanyAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 

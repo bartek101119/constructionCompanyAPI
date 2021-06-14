@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using constructionCompanyAPI.Entities;
+using constructionCompanyAPI.Exceptions;
 using constructionCompanyAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,19 +16,21 @@ namespace constructionCompanyAPI.Services
         int Create(CreateConstructionCompanyDto dto);
         IEnumerable<ConstructionCompanyDto> GetAll();
         ConstructionCompanyDto GetById(int id);
-        bool Delete(int id);
-        bool Put(UpdateConstructionCompanyDto dto, int id);
+        void Delete(int id);
+        void Put(UpdateConstructionCompanyDto dto, int id);
     }
 
     public class ConstructionCompanyService : IConstructionCompanyService
     {
         private readonly ConstructionCompanyDbContext dbContext;
         private readonly IMapper mapper;
+        private readonly ILogger<ConstructionCompanyService> logger;
 
-        public ConstructionCompanyService(ConstructionCompanyDbContext dbContext, IMapper mapper)
+        public ConstructionCompanyService(ConstructionCompanyDbContext dbContext, IMapper mapper, ILogger<ConstructionCompanyService> logger)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
+            this.logger = logger;
         }
         public IEnumerable<ConstructionCompanyDto> GetAll()
         {
@@ -52,7 +56,7 @@ namespace constructionCompanyAPI.Services
                 .FirstOrDefault(c => c.Id == id);
 
             if (constructionCompany is null)
-                return null;
+                throw new NotFoundException("Construction Company not found");
 
             var constructionCompanyDto = mapper.Map<ConstructionCompanyDto>(constructionCompany);
 
@@ -68,29 +72,30 @@ namespace constructionCompanyAPI.Services
             return constructionCompany.Id;
         }
 
-        public bool Delete(int id)
+        public void Delete(int id)
         {
+            logger.LogError($"Construction Company with id: {id} DELETE action invoked");
+
             var constructionCompany = dbContext
                 .ConstructionCompanies
                 .FirstOrDefault(c => c.Id == id);
 
             if (constructionCompany is null)
-                return false;
+                throw new NotFoundException("Construction Company not found");
 
             dbContext.ConstructionCompanies.Remove(constructionCompany);
             dbContext.SaveChanges();
 
-            return true;
         }
 
-        public bool Put(UpdateConstructionCompanyDto dto, int id)
+        public void Put(UpdateConstructionCompanyDto dto, int id)
         {
             var constructionCompany = dbContext
                 .ConstructionCompanies
                 .FirstOrDefault(c => c.Id == id);
 
             if (constructionCompany is null)
-                return false;
+                throw new NotFoundException("Construction Company not found");
 
             constructionCompany.Name = dto.Name;
             constructionCompany.LegalForm = dto.LegalForm;
@@ -101,8 +106,6 @@ namespace constructionCompanyAPI.Services
 
 
             dbContext.SaveChanges();
-
-            return true;
 
         }
     }
