@@ -1,9 +1,14 @@
 using constructionCompanyAPI.Entities;
 using constructionCompanyAPI.Middleware;
+using constructionCompanyAPI.Models;
+using constructionCompanyAPI.Models.Validators;
 using constructionCompanyAPI.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +34,7 @@ namespace constructionCompanyAPI
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers().AddFluentValidation();
             services.AddDbContext<ConstructionCompanyDbContext>();
             services.AddScoped<ConstructionCompanySeeder>();
             services.AddAutoMapper(this.GetType().Assembly);
@@ -39,6 +44,8 @@ namespace constructionCompanyAPI
             services.AddScoped<RequestTimeMiddleware>();
             services.AddScoped<IEmployeeService, EmployeeService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
