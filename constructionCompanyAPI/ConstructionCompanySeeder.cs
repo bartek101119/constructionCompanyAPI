@@ -19,6 +19,13 @@ namespace constructionCompanyAPI
         {
             if (dbContext.Database.CanConnect())
             {
+                if (!dbContext.Roles.Any())
+                {
+                    var roles = GetRoles();
+                    dbContext.Roles.AddRange(roles);
+                    dbContext.SaveChanges();
+                }
+
                 if (!dbContext.ConstructionCompanies.Any())
                 {
                     var constructionCompanies = GetConstructionCompanies();
@@ -28,6 +35,26 @@ namespace constructionCompanyAPI
             }
         }
 
+        private IEnumerable<Role> GetRoles()
+        {
+            var roles = new List<Role>() 
+            { 
+                new Role()
+                {
+                    Name = "User"
+                },
+                new Role()
+                {
+                    Name = "Manager"
+                },
+                new Role()
+                {
+                    Name = "Admin"
+                },
+            };
+
+            return roles;
+        } 
         public IEnumerable<ConstructionCompany> GetConstructionCompanies()
         {
             var constructionCompanies = new List<ConstructionCompany>()
