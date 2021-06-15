@@ -25,7 +25,7 @@ namespace constructionCompanyAPI
                 .ForMember(m => m.Address, f => f.MapFrom(dto => new Address() { Voivodeship = dto.Voivodeship, City = dto.City, Street = dto.Street, PostalCode = dto.PostalCode }))
                 .ForMember(m => m.CompanyOwner, f => f.MapFrom(dto => new CompanyOwner() { FullName = dto.FullName }));
 
-
+            CreateMap<CreateEmployeeDto, Employee>();
 
         }
     }
