@@ -41,6 +41,14 @@ namespace constructionCompanyAPI.Controllers
 
             return Ok(employees);
         }
+
+        [HttpDelete]
+        public ActionResult Delete([FromRoute] int constructionCompanyId)
+        {
+            service.RemoveAll(constructionCompanyId);
+
+            return NoContent();
+        }
         
     }
 }

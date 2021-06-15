@@ -15,6 +15,7 @@ namespace constructionCompanyAPI.Services
         int Post(int constructionCompanyId, CreateEmployeeDto dto);
         EmployeeDto GetById(int constructionCompanyId, int employeeId);
         List<EmployeeDto> GetAll(int constructionCompanyId);
+        void RemoveAll(int constructionCompanyId);
     }
     public class EmployeeService : IEmployeeService
     {
@@ -26,11 +27,16 @@ namespace constructionCompanyAPI.Services
             this.dbContext = dbContext;
             this.mapper = mapper;
         }
+        public void RemoveAll(int constructionCompanyId)
+        {
+            var constructionCompany = ConstructionCompanyById(constructionCompanyId);
+
+            dbContext.RemoveRange(constructionCompany.Employees);
+            dbContext.SaveChanges();
+        }
         public int Post(int constructionCompanyId, CreateEmployeeDto dto)
         {
-            var constructionCompany = dbContext.ConstructionCompanies.FirstOrDefault(c => c.Id == constructionCompanyId);
-            if (constructionCompany is null)
-                throw new NotFoundException("Construction Company not found");
+            var constructionCompany = ConstructionCompanyById(constructionCompanyId);
 
             var newEmployee = mapper.Map<Employee>(dto);
 
@@ -44,9 +50,7 @@ namespace constructionCompanyAPI.Services
 
         public EmployeeDto GetById(int constructionCompanyId, int employeeId)
         {
-            var constructionCompany = dbContext.ConstructionCompanies.FirstOrDefault(c => c.Id == constructionCompanyId);
-            if (constructionCompany is null)
-                throw new NotFoundException("Construction Company not found");
+            var constructionCompany = ConstructionCompanyById(constructionCompanyId);
 
             var employee = dbContext.Employees.FirstOrDefault(e => e.Id == employeeId);
             if(employee is null || employee.Id != employeeId)
@@ -59,13 +63,20 @@ namespace constructionCompanyAPI.Services
 
         public List<EmployeeDto> GetAll(int constructionCompanyId)
         {
-            var constructionCompany = dbContext.ConstructionCompanies.Include(e => e.Employees).FirstOrDefault(c => c.Id == constructionCompanyId);
-            if (constructionCompany is null)
-                throw new NotFoundException("Construction Company not found");
+            var constructionCompany = ConstructionCompanyById(constructionCompanyId);
 
             var employeeDtos = mapper.Map<List<EmployeeDto>>(constructionCompany.Employees);
 
             return employeeDtos;
+        }
+
+        private ConstructionCompany ConstructionCompanyById(int constructionCompanyId)
+        {
+            var constructionCompany = dbContext.ConstructionCompanies.Include(e => e.Employees).FirstOrDefault(c => c.Id == constructionCompanyId);
+            if (constructionCompany is null)
+                throw new NotFoundException("Construction Company not found");
+
+            return constructionCompany;
         }
     }
 }
