@@ -22,8 +22,24 @@ namespace constructionCompanyAPI.Controllers
         {
             var newEmployeeId = service.Post(constructionCompanyId, dto);
 
-            return Created($"/api/{constructionCompanyId}/{newEmployeeId}", null);
+            return Created($"/api/constructionCompany/{constructionCompanyId}/{newEmployeeId}", null);
 
+        }
+
+        [HttpGet("{employeeId}")]
+        public ActionResult<EmployeeDto> Get([FromRoute]int constructionCompanyId, [FromRoute]int employeeId)
+        {
+            EmployeeDto employee = service.GetById(constructionCompanyId, employeeId);
+
+            return Ok(employee);
+        }
+
+        [HttpGet]
+        public ActionResult<List<EmployeeDto>> GetAll([FromRoute] int constructionCompanyId)
+        {
+            var employees = service.GetAll(constructionCompanyId);
+
+            return Ok(employees);
         }
         
     }
