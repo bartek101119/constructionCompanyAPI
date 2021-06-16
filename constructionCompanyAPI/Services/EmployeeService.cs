@@ -16,6 +16,7 @@ namespace constructionCompanyAPI.Services
         EmployeeDto GetById(int constructionCompanyId, int employeeId);
         List<EmployeeDto> GetAll(int constructionCompanyId);
         void RemoveAll(int constructionCompanyId);
+        void Put(UpdateEmployeeDto dto, int constructionCompanyId, int employeeId);
     }
     public class EmployeeService : IEmployeeService
     {
@@ -26,6 +27,21 @@ namespace constructionCompanyAPI.Services
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
+        }
+        public void Put(UpdateEmployeeDto dto, int constructionCompanyId, int employeeId)
+        {
+            var constructionCompany = ConstructionCompanyById(constructionCompanyId);
+
+            var employee = dbContext.Employees.FirstOrDefault(e => e.Id == employeeId);
+            if (employee is null || employee.Id != employeeId)
+                throw new NotFoundException("Employee not found");
+
+            employee.FullName = dto.FullName;
+            employee.Specialization = dto.Specialization;
+
+            dbContext.SaveChanges();
+
+
         }
         public void RemoveAll(int constructionCompanyId)
         {

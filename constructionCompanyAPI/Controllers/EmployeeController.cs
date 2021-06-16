@@ -18,6 +18,15 @@ namespace constructionCompanyAPI.Controllers
         {
             this.service = service;
         }
+        [HttpPut("{employeeId}")]
+        public ActionResult Put([FromBody]UpdateEmployeeDto dto, [FromRoute]int constructionCompanyId, [FromRoute]int employeeId)
+        {
+            service.Put(dto, constructionCompanyId, employeeId);
+
+            return Ok();
+        }
+
+        [HttpPost]
         public ActionResult Post([FromRoute]int constructionCompanyId, [FromBody]CreateEmployeeDto dto)
         {
             var newEmployeeId = service.Post(constructionCompanyId, dto);
