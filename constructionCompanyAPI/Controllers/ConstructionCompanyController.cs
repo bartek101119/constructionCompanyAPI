@@ -2,6 +2,7 @@
 using constructionCompanyAPI.Entities;
 using constructionCompanyAPI.Models;
 using constructionCompanyAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,6 +14,7 @@ namespace constructionCompanyAPI.Controllers
 {
     [Route("/api/constructionCompany")]
     [ApiController]
+    [Authorize]
     public class ConstructionCompanyController : ControllerBase
     {
         private readonly IConstructionCompanyService service;
@@ -40,6 +42,7 @@ namespace constructionCompanyAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         public ActionResult CreateConstructionCompany([FromBody] CreateConstructionCompanyDto dto)
         {
 
@@ -49,6 +52,7 @@ namespace constructionCompanyAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "HasNationality")]
         public ActionResult<IEnumerable<ConstructionCompanyDto>> GetAll()
         {
             var constructionCompaniesDtos = service.GetAll();

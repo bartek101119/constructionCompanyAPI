@@ -60,6 +60,11 @@ namespace constructionCompanyAPI
                 };
 
             });
+            // w³asna polityka autoryzacji
+            services.AddAuthorization(option => 
+            {
+                option.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality"));
+            });
 
             services.AddControllers().AddFluentValidation();
             services.AddDbContext<ConstructionCompanyDbContext>();
