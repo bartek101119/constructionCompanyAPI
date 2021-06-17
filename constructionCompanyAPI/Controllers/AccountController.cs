@@ -24,5 +24,13 @@ namespace constructionCompanyAPI.Controllers
             accountService.Register(dto);
             return Ok();
         }
+
+        [HttpPost("login")]
+        public ActionResult Login([FromBody]LoginDto dto)
+        {
+            var token = accountService.GenerateJwt(dto);
+
+            return Ok(token);
+        }
     }
 }
