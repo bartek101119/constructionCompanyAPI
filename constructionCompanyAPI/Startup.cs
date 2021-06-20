@@ -63,12 +63,14 @@ namespace constructionCompanyAPI
 
             });
             // w³asna polityka autoryzacji
-            services.AddAuthorization(options => 
+            services.AddAuthorization(options =>
             {
-                options.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality"));
-                options.AddPolicy("Atleast18", builder => builder.AddRequirements(new MinimumAgeRequirement(18)));
+            options.AddPolicy("HasNationality", builder => builder.RequireClaim("Nationality"));
+            options.AddPolicy("Atleast18", builder => builder.AddRequirements(new MinimumAgeRequirement(18)));
+            options.AddPolicy("AtLeast2Companies", builder => builder.AddRequirements(new MinimumNumberOfCompanies(2)));
             });
 
+            services.AddScoped<IAuthorizationHandler, MinimumNumberOfCompaniesHandler>();
             services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
             services.AddScoped<IAuthorizationHandler, MinimumAgeRequirementHandler>();
             services.AddControllers().AddFluentValidation();
@@ -83,6 +85,9 @@ namespace constructionCompanyAPI
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<IValidator<RegisterUserDto>, RegisterUserDtoValidator>();
+            services.AddScoped<IUserContextService, UserContextService>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<IValidator<ConstructionCompanyQuery>, ConstructionCompanyQueryValidator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

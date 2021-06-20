@@ -16,11 +16,11 @@ namespace constructionCompanyAPI.Services
 {
     public interface IConstructionCompanyService
     {
-        int Create(CreateConstructionCompanyDto dto, int userId);
-        IEnumerable<ConstructionCompanyDto> GetAll();
+        int Create(CreateConstructionCompanyDto dto);
+        PagedResult<ConstructionCompanyDto> GetAll(ConstructionCompanyQuery query);
         ConstructionCompanyDto GetById(int id);
-        void Delete(int id, ClaimsPrincipal user);
-        void Put(UpdateConstructionCompanyDto dto, int id, ClaimsPrincipal user);
+        void Delete(int id);
+        void Put(UpdateConstructionCompanyDto dto, int id);
     }
 
     public class ConstructionCompanyService : IConstructionCompanyService
@@ -29,27 +29,38 @@ namespace constructionCompanyAPI.Services
         private readonly IMapper mapper;
         private readonly ILogger<ConstructionCompanyService> logger;
         private readonly IAuthorizationService authorizationService;
+        private readonly IUserContextService userContextService;
 
         public ConstructionCompanyService(ConstructionCompanyDbContext dbContext, IMapper mapper, ILogger<ConstructionCompanyService> logger, 
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService, IUserContextService userContextService)
         {
             this.dbContext = dbContext;
             this.mapper = mapper;
             this.logger = logger;
             this.authorizationService = authorizationService;
+            this.userContextService = userContextService;
         }
-        public IEnumerable<ConstructionCompanyDto> GetAll()
+        public PagedResult<ConstructionCompanyDto> GetAll(ConstructionCompanyQuery query)
         {
-            var constructionCompanies = dbContext
+            var baseQuery = dbContext
                 .ConstructionCompanies
                 .Include(c => c.Address)
                 .Include(c => c.CompanyOwner)
                 .Include(c => c.Employees)
+                .Where(p => query.SearchPhrase == null || p.Name.ToLower().Contains(query.SearchPhrase) || p.NIP.ToLower().Contains(query.SearchPhrase)); // zwraca wszystkie zasoby lub po właściwościach
+
+            var constructionCompanies = baseQuery
+                .Skip(query.PageSize * (query.PageNumber - 1)) // pomijam określoną liczbę elementów
+                .Take(query.PageSize) // następnie pobieram tyle elementów ile potrzebuję (przydatne do paginacji danych) 
                 .ToList();
+
+            var totalItemsCount = baseQuery.Count();
 
             var constructionCompaniesDtos = mapper.Map<List<ConstructionCompanyDto>>(constructionCompanies);
 
-            return constructionCompaniesDtos;
+            var result = new PagedResult<ConstructionCompanyDto>(constructionCompaniesDtos, totalItemsCount, query.PageSize, query.PageNumber);
+
+            return result;
         }
 
         public ConstructionCompanyDto GetById(int id)
@@ -69,17 +80,17 @@ namespace constructionCompanyAPI.Services
             return constructionCompanyDto;
         }
 
-        public int Create(CreateConstructionCompanyDto dto, int userId)
+        public int Create(CreateConstructionCompanyDto dto)
         {
             var constructionCompany = mapper.Map<ConstructionCompany>(dto);
-            constructionCompany.CreatedById = userId;
+            constructionCompany.CreatedById = userContextService.GetUserId;
             dbContext.ConstructionCompanies.Add(constructionCompany);
             dbContext.SaveChanges();
 
             return constructionCompany.Id;
         }
 
-        public void Delete(int id, ClaimsPrincipal user)
+        public void Delete(int id)
         {
             logger.LogError($"Construction Company with id: {id} DELETE action invoked");
 
@@ -90,7 +101,7 @@ namespace constructionCompanyAPI.Services
             if (constructionCompany is null)
                 throw new NotFoundException("Construction Company not found");
 
-            var authorizationResult = authorizationService.AuthorizeAsync(user, constructionCompany, new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
+            var authorizationResult = authorizationService.AuthorizeAsync(userContextService.User, constructionCompany, new ResourceOperationRequirement(ResourceOperation.Delete)).Result;
 
             if (!authorizationResult.Succeeded)
             {
@@ -103,7 +114,7 @@ namespace constructionCompanyAPI.Services
 
         }
 
-        public void Put(UpdateConstructionCompanyDto dto, int id, ClaimsPrincipal user)
+        public void Put(UpdateConstructionCompanyDto dto, int id)
         {
             
 
@@ -114,7 +125,7 @@ namespace constructionCompanyAPI.Services
             if (constructionCompany is null)
                 throw new NotFoundException("Construction Company not found");
 
-            var authorizationResult = authorizationService.AuthorizeAsync(user, constructionCompany, new ResourceOperationRequirement(ResourceOperation.Update)).Result;
+            var authorizationResult = authorizationService.AuthorizeAsync(userContextService.User, constructionCompany, new ResourceOperationRequirement(ResourceOperation.Update)).Result;
 
             if (!authorizationResult.Succeeded)
             {

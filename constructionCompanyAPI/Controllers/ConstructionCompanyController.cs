@@ -28,7 +28,7 @@ namespace constructionCompanyAPI.Controllers
         [HttpPut("{id}")]
         public ActionResult Put([FromBody]UpdateConstructionCompanyDto dto, [FromRoute]int id)
         {
-            service.Put(dto, id, User);
+            service.Put(dto, id);
 
             return Ok();
         }
@@ -36,7 +36,7 @@ namespace constructionCompanyAPI.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            service.Delete(id, User);
+            service.Delete(id);
 
             return NoContent();
 
@@ -46,17 +46,17 @@ namespace constructionCompanyAPI.Controllers
         [Authorize(Roles = "User")]
         public ActionResult CreateConstructionCompany([FromBody] CreateConstructionCompanyDto dto)
         {
-            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-            var id = service.Create(dto, userId);
+            
+            var id = service.Create(dto);
 
             return Created($"api/constructionCompany/{id}", null);
         }
 
         [HttpGet]
-        [Authorize(Policy = "Atleast18")]
-        public ActionResult<IEnumerable<ConstructionCompanyDto>> GetAll()
+        [Authorize(Policy = "AtLeast18")]
+        public ActionResult<IEnumerable<ConstructionCompanyDto>> GetAll([FromQuery]ConstructionCompanyQuery query)
         {
-            var constructionCompaniesDtos = service.GetAll();
+            var constructionCompaniesDtos = service.GetAll(query);
 
             return Ok(constructionCompaniesDtos);
         }
