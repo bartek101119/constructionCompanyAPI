@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -48,6 +49,23 @@ namespace constructionCompanyAPI.Services
                 .Include(c => c.CompanyOwner)
                 .Include(c => c.Employees)
                 .Where(p => query.SearchPhrase == null || p.Name.ToLower().Contains(query.SearchPhrase) || p.NIP.ToLower().Contains(query.SearchPhrase)); // zwraca wszystkie zasoby lub po właściwościach
+
+
+            if (!string.IsNullOrEmpty(query.SortBy))
+            {
+                var columnsSelectors = new Dictionary<string, Expression<Func<ConstructionCompany, object>>>
+                {
+                    {nameof(ConstructionCompany.Name), r => r.Name },
+                    {nameof(ConstructionCompany.LegalForm), r => r.LegalForm },
+                    {nameof(ConstructionCompany.NIP), r => r.NIP}
+                };
+
+                var selectedColumn = columnsSelectors[query.SortBy];
+
+                baseQuery = query.SortDirection == SortDirection.ASC
+                    ? baseQuery.OrderBy(selectedColumn)
+                    : baseQuery.OrderByDescending(selectedColumn);
+            }
 
             var constructionCompanies = baseQuery
                 .Skip(query.PageSize * (query.PageNumber - 1)) // pomijam określoną liczbę elementów

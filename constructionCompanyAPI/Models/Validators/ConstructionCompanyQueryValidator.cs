@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using constructionCompanyAPI.Entities;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace constructionCompanyAPI.Models.Validators
     {
 
         private int[] allowedPageSizes = new[] { 5, 10, 15 };
+        private string[] allowedSortByColumnsNames = new[] { nameof(ConstructionCompany.Name), nameof(ConstructionCompany.LegalForm), nameof(ConstructionCompany.NIP) };
         public ConstructionCompanyQueryValidator()
         {
             RuleFor(r => r.PageNumber).GreaterThanOrEqualTo(1);
@@ -21,6 +23,10 @@ namespace constructionCompanyAPI.Models.Validators
                 }        
             
             });
+
+            RuleFor(r => r.SortBy)
+                .Must(value => string.IsNullOrEmpty(value) || allowedSortByColumnsNames.Contains(value))
+                .WithMessage($"Sort by is optional, or must be in [{string.Join(",", allowedSortByColumnsNames)}]");
         }
 
     }
